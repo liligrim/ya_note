@@ -52,6 +52,7 @@ class NoteDelete(NoteBase, generic.DeleteView):
 class NotesList(NoteBase, generic.ListView):
     """Список всех заметок пользователя."""
     template_name = 'notes/list.html'
+    context_object_name = 'notes_feed' # ключ при помощи атрибута context_object_name
 
 
 class NoteDetail(NoteBase, generic.DetailView):
