@@ -52,8 +52,8 @@ class TestNoteEditDelete(TestCase):
         cls.author_client = Client()
         cls.author_client.force_login(cls.author)
         cls.notes = Note.objects.create(
-            author = cls.author,
-            text = 'Текст заметки',
+            author=cls.author,
+            text='Текст заметки',
             title='Заголовок',
             slug=cls.SLUG_TEXT,
         )
