@@ -9,6 +9,7 @@ from notes.models import Note
 
 
 User = get_user_model()
+WARNING_FOR_SLUG = 'Убедитесь, что это значение содержит не более 100 символов'
 
 
 class TestNoteCreation(TestCase):
@@ -45,6 +46,9 @@ class TestNoteEditDelete(TestCase):
     NEW_SLUG = 'novyi-zagolovok'
     NEW_TITLE_TEXT = 'Новый заголовок заметки'
     NEW_NOTE_TEXT = 'Какой-то новый текст заметки'
+    SLUG_MORE_THAN_100_SYMBOLS = ('zagolovok-zametki-bolee-chem-100-simvolov-'
+                                  'sozdannyj-polzovatelem-dlya-proverki-'
+                                  'korrektnosti-vvoda-i-vyvoda-informacii')
 
     @classmethod
     def setUpTestData(cls) -> None:
@@ -105,6 +109,19 @@ class TestNoteEditDelete(TestCase):
             form='form',
             field='slug',
             errors=f'{self.SLUG_TEXT}{WARNING}'
+        )
+        note_count = Note.objects.count()
+        self.assertEqual(note_count, 1)
+
+    def test_slug_max_length(self):
+        new_note = {'slug': self.SLUG_MORE_THAN_100_SYMBOLS}
+        response = self.author_client.post(self.url_add, data=new_note)
+        length_for_slug = len(self.SLUG_MORE_THAN_100_SYMBOLS)
+        self.assertFormError(
+            response,
+            form='form',
+            field='slug',
+            errors=f'{WARNING_FOR_SLUG} (сейчас {length_for_slug}).'
         )
         note_count = Note.objects.count()
         self.assertEqual(note_count, 1)
