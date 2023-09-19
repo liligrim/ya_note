@@ -20,6 +20,7 @@ class TestNoteList(TestCase):
         )
         cls.reader = User.objects.create(username='Не автор заметки')
         cls.url = reverse('notes:list')
+        cls.detail_url = reverse('notes:add')
 
     def test_note_list(self):
         self.client.force_login(self.author)
@@ -34,3 +35,8 @@ class TestNoteList(TestCase):
         object_list = response.context['object_list']
         count_note = len(object_list)
         self.assertEqual(count_note, 0)
+
+    def test_authorized_client_has_form(self):
+        self.client.force_login(self.author)
+        response = self.client.get(self.detail_url)
+        self.assertIn('form', response.context)
