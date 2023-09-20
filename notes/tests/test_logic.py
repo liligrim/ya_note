@@ -13,13 +13,14 @@ WARNING_FOR_SLUG = 'Убедитесь, что это значение соде�
 
 
 class TestNoteCreation(TestCase):
-    SLUG_TEXT = 'zagolovok'
+    SLUG_TEXT = 'zagolovok-zametki'
     TITLE_TEXT = 'Заголовок заметки'
     TEXT_TEXT = 'Какой-то текст заметки'
 
     @classmethod
     def setUpTestData(cls) -> None:
         cls.user = User.objects.create(username='Автор')
+        cls.url_add = reverse('notes:add')
         cls.auth_client = Client()
         cls.auth_client.force_login(cls.user)
         cls.url = reverse('notes:add')
@@ -27,10 +28,11 @@ class TestNoteCreation(TestCase):
         cls.form_data = {
             'title': cls.TITLE_TEXT,
             'text': cls.TEXT_TEXT,
-            'slug': cls.SLUG_TEXT,
+            # 'slug': cls.SLUG_TEXT,
         }
 
-    def test_user_can_create_note(self):
+    def test_user_can_create_note_and_create_with_empty_slug(self):
+        """Проверка на создание заметки и присвоение ей имени заголовка, если нет слага"""
         response = self.auth_client.post(self.url, data=self.form_data)
         self.assertRedirects(response, self.url_redirect)
         notes_count = Note.objects.count()
@@ -95,7 +97,7 @@ class TestNoteEditDelete(TestCase):
         self.notes.refresh_from_db()
         self.assertEqual(self.notes.text, self.NEW_NOTE_TEXT)
 
-    def test_user_cant_edit_comment_of_another_user(self):
+    def test_user_cant_edit_note_of_another_user(self):
         response = self.reader_client.post(self.edit_url, data=self.form_data)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.notes.refresh_from_db()
