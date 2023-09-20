@@ -13,9 +13,10 @@ WARNING_FOR_SLUG = 'Убедитесь, что это значение соде�
 
 
 class TestNoteCreation(TestCase):
-    SLUG_TEXT = 'zagolovok-zametki'
+    SLUG_TEXT = 'zagolovok'
     TITLE_TEXT = 'Заголовок заметки'
     TEXT_TEXT = 'Какой-то текст заметки'
+    SLUG_TEXT_FOR_TEST = 'zagolovok-zametki'
 
     @classmethod
     def setUpTestData(cls) -> None:
@@ -28,11 +29,10 @@ class TestNoteCreation(TestCase):
         cls.form_data = {
             'title': cls.TITLE_TEXT,
             'text': cls.TEXT_TEXT,
-            # 'slug': cls.SLUG_TEXT,
+            'slug': cls.SLUG_TEXT,
         }
 
-    def test_user_can_create_note_and_create_with_empty_slug(self):
-        """Проверка на создание заметки и присвоение ей имени заголовка, если нет слага"""
+    def test_user_can_create_note(self):
         response = self.auth_client.post(self.url, data=self.form_data)
         self.assertRedirects(response, self.url_redirect)
         notes_count = Note.objects.count()
@@ -41,6 +41,15 @@ class TestNoteCreation(TestCase):
         self.assertEqual(note.text, self.TEXT_TEXT)
         self.assertEqual(note.slug, self.SLUG_TEXT)
         self.assertEqual(note.title, self.TITLE_TEXT)
+
+    def test_empty_slug(self):
+        self.form_data.pop('slug')
+        response = self.auth_client.post(self.url, data=self.form_data)
+        self.assertRedirects(response, self.url_redirect)
+        notes_count = Note.objects.count()
+        self.assertEqual(notes_count, 1)
+        note = Note.objects.get()
+        self.assertEqual(note.slug, self.SLUG_TEXT_FOR_TEST)
 
 
 class TestNoteEditDelete(TestCase):
