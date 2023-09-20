@@ -21,6 +21,7 @@ class TestNoteList(TestCase):
         cls.reader = User.objects.create(username='Не автор заметки')
         cls.url = reverse('notes:list')
         cls.detail_url = reverse('notes:add')
+        cls.edit_url = reverse('notes:edit', args=(cls.notes.slug,))
 
     def test_note_list(self):
         self.client.force_login(self.author)
@@ -39,4 +40,9 @@ class TestNoteList(TestCase):
     def test_authorized_client_has_form(self):
         self.client.force_login(self.author)
         response = self.client.get(self.detail_url)
+        self.assertIn('form', response.context)
+
+    def test_authorized_client_has_edit_form(self):
+        self.client.force_login(self.author)
+        response = self.client.get(self.edit_url)
         self.assertIn('form', response.context)
